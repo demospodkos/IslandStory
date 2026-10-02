@@ -1,0 +1,22 @@
+name: Unity Personal Activation
+on:
+  workflow_dispatch:
+jobs:
+  activation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Unity activation file
+        uses: game-ci/unity-activate@v2
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          unityVersion: 2022.3.62f2
+          dockerLicenseFile: Unity_v2022.3.62f2.alf
+      - name: Upload activation file
+        uses: actions/upload-artifact@v4
+        with:
+          name: Unity-Activation-File
+          path: Unity_v2022.3.62f2.alf
+          if-no-files-found: error
+          retention-days: 7
