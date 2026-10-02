@@ -21,7 +21,7 @@ public class MainActivity extends Activity {
             "Айболит вызывает подкрепление полиции. Нужно пережить последнюю опасную сцену и добраться до безопасного места.",
             "У бородатого героя случается полная переоценка ценностей. История возвращается домой — но приключение уже не забыть."
         };
-        StoryView(){ super(MainActivity.this); setFocusable(true); post(loop); }
+        StoryView(){ super(MainActivity.this); setFocusable(true); post(this::loop); }
         void loop(){long now=System.currentTimeMillis();if(last==0)last=now;float dt=Math.min(.04f,(now-last)/1000f);last=now;update(dt);invalidate();postDelayed(this::loop,16);}
         void update(float dt){if(scene<2||scene>5)return;if(left)px-=260*dt;if(right)px+=260*dt;vy+=950*dt;py+=vy*dt;float ground=getHeight()-150;if(py>ground){py=ground;vy=0;}if(jump&&py>=ground-1){vy=-520;jump=false;}if(px>getWidth()-90){px=70;scene++;if(scene>6)scene=6;}if(px<20)px=20;}
         protected void onDraw(Canvas c){super.onDraw(c);int w=getWidth(),h=getHeight();if(scene==0){drawIntro(c,w,h);return;}drawScene(c,w,h);}
