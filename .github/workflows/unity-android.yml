@@ -1,0 +1,38 @@
+name: Unity Android APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download source video
+        run: |
+          mkdir -p UnityProject/Assets/StreamingAssets
+          curl -L --fail --retry 3 'https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=https%3A%2F%2Fdisk.yandex.ru%2Fi%2F3mKCAjifwtNN5Q' -o /tmp/yandex.json
+          python3 - <<'PY'
+          import json,urllib.request
+          d=json.load(open('/tmp/yandex.json'))
+          urllib.request.urlretrieve(d['href'],'UnityProject/Assets/StreamingAssets/story.mp4')
+          PY
+          test -s UnityProject/Assets/StreamingAssets/story.mp4
+      - name: Build Android
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        with:
+          projectPath: UnityProject
+          unityVersion: 2022.3.62f2
+          targetPlatform: Android
+          buildMethod: BuildScript.BuildAndroid
+          customParameters: -nographics
+      - uses: actions/upload-artifact@v4
+        with:
+          name: IslandStory-Unity-Android
+          path: UnityProject/build/IslandStory.apk
+          if-no-files-found: error
+          retention-days: 14
