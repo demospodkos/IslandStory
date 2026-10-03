@@ -1,6 +1,8 @@
 name: Unity Personal Activation
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
 jobs:
   activation:
     runs-on: ubuntu-latest
