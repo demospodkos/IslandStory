@@ -8,18 +8,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Download story video
+        run: |
+          mkdir -p app/src/main/assets
+          curl -L --fail --retry 3 'https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=https%3A%2F%2Fdisk.yandex.ru%2Fi%2F3mKCAjifwtNN5Q' -o /tmp/yandex.json
+          python3 - <<'PY'
+          import json, urllib.request
+          d=json.load(open('/tmp/yandex.json'))
+          urllib.request.urlretrieve(d['href'], 'app/src/main/assets/story.mp4')
+          PY
+          test -s app/src/main/assets/story.mp4
+          ls -lh app/src/main/assets/story.mp4
+
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
+
       - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: '8.7'
           cache-provider: basic
+
       - run: gradle --no-daemon assembleDebug
+
       - uses: actions/upload-artifact@v4
         with:
-          name: IslandStory-debug-apk
+          name: IslandStory-READY-APK
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
